@@ -11,7 +11,7 @@ function createWindow() {
         icon: path.join(__dirname, 'noshot_browser.ico'),
         webPreferences: {
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
             webviewTag: true
         }
     });
