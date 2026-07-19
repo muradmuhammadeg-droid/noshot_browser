@@ -114,7 +114,7 @@
         }
 
         /* 3. The Isolated Web Canvas Frame */
-        iframe {
+        webview {
             flex-grow: 1;
             background: #ffffff;
             border: none;
@@ -143,34 +143,9 @@
             <input type="text" id="url-bar" value="https://google.com" autocomplete="off">
         </div>
     </div>
-
-    <!-- Main View Window Layer -->
-    <iframe id="web-container" src="https://google.com"></iframe>
-
-    <script>
-        const urlBar = document.getElementById('url-bar');
-        const webContainer = document.getElementById('web-container');
-        const tabTitle = document.getElementById('tab-title');
-
-        // Handles Navigation Triggers
-        urlBar.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                let url = urlBar.value.trim();
-                if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    url = 'https://' + url;
-                }
-                urlBar.value = url;
-                webContainer.src = url;
-                
-                // Strips domain to update tab name cleanly
-                try {
-                    const domain = new URL(url).hostname.replace('www.', '');
-                    tabTitle.textContent = domain;
-                } catch(err) {
-                    tabTitle.textContent = url;
-                }
-            }
-        });
+    
+    <!-- Main High-Performance Isolated Chromium Renderer Layer -->
+    <webview id="web-container" src="https://google.com"></webview>
 
         // Chrome UI Functional Listeners
         document.getElementById('reload').addEventListener('click', () => { webContainer.src = webContainer.src; });
