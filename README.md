@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/MIT_License-blue)](https://github.com/muradmuhammadeg-droid/noshot_browser?tab=MIT-1-ov-file)
 [![Issues](https://img.shields.io/badge/Issues-red)](https://github.com/muradmuhammadeg-droid/noshot_browser/issues)
 [![Discord_Online](https://img.shields.io/badge/Join_Discord!-purple)](https://discord.gg/P4M4mnnHrY)
-![Gitter](https://img.shields.io/gitter/room/muradmuhammadeg-droid/noshot_browser)
+![Gitter](https://img.shields.io/gitter/room/muradmuhammadeg-droid/noshot_browser)[https://matrix.to/#/#noshot_browser:gitter.im]
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)](https://github.com/muradmuhammadeg-droid/noshot_browser)
 
 An ultra-minimalist, medium-RAM desktop browser framework that replicates the clean aesthetic of Google Chrome while implementing an ethical background ad-blocking core.
