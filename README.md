@@ -3,7 +3,7 @@
 <!-- 🛡️ Professional Status Badges Strip -->
 [![License](https://shields.io)](https://github.com/muradmuhammadeg-droid/noshot_browser?tab=MIT-1-ov-file)
 [![Issues](https://shields.io)](https://github.com/muradmuhammadeg-droid/noshot_browser/issues)
-[![Discord_Online](https://shields.io)](https://discord.gg)
+[![Discord_Online](https://img.shields.io/badge/Join Discord!-purple)](https://discord.gg)
 
 
 
