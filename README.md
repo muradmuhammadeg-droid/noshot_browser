@@ -1,3 +1,5 @@
+> [!NOTE]
+> Were currently working on this project.
 # NoShot Browser
 
 <!-- 🛡️ Professional Status Badges Strip -->
@@ -18,7 +20,7 @@ An ultra-minimalist, medium-RAM desktop browser framework that replicates the cl
 
 ## How to Run Locally
 
-To boot up the browser framework on your local machine, make sure you have [Node.js](https://nodejs.org) installed, then execute these commands in your terminal or PowerShell:
+To boot up the browser framework on your local machine, make sure you have [Node.js](https://nodejs.org/en/download) and [Git](https://git-scm.com/install/) installed, then execute these commands in your terminal or PowerShell:
 
 ```bash
 # 1. Clone the repository
