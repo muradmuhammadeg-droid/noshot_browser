@@ -5,7 +5,7 @@
 <!-- 🛡️ Professional Status Badges Strip -->
 [![License](https://img.shields.io/badge/MIT_License-blue)](https://github.com/muradmuhammadeg-droid/noshot_browser?tab=MIT-1-ov-file)
 [![Issues](https://img.shields.io/badge/Issues-red)](https://github.com/muradmuhammadeg-droid/noshot_browser/issues)
-[![Discord_Online](https://img.shields.io/badge/Join_Discord!-purple)](https://discord.gg)
+[![Discord_Online](https://img.shields.io/badge/Join_Discord!-purple)](https://discord.gg/P4M4mnnHrY)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)](https://github.com/muradmuhammadeg-droid/noshot_browser)
 
 
