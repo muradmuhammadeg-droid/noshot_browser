@@ -7,6 +7,7 @@
 [![Issues](https://img.shields.io/badge/Issues-red)](https://github.com/muradmuhammadeg-droid/noshot_browser/issues)
 [![Discord_Online](https://img.shields.io/badge/Join_Discord!-purple)](https://discord.gg/P4M4mnnHrY)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)](https://github.com/muradmuhammadeg-droid/noshot_browser)
+![Gitter](https://img.shields.io/gitter/room/muradmuhammadeg-droid/noshot_browser)
 
 
 An ultra-minimalist, medium-RAM desktop browser framework that replicates the clean aesthetic of Google Chrome while implementing an ethical background ad-blocking core.
@@ -20,7 +21,7 @@ An ultra-minimalist, medium-RAM desktop browser framework that replicates the cl
 
 ## How to Run Locally
 
-To boot up the browser framework on your local machine, make sure you have [Node.js](https://nodejs.org/en/download) and [Git](https://git-scm.com/install/) installed, then execute these commands in your terminal or PowerShell:
+To boot up the browser framework on your local machine, make sure you have [Node.js](https://nodejs.org/en/download) and [Git](htps://git-scm.com/install/) installed, then execute these commands in your terminal or PowerShell:
 
 ```bash
 # 1. Clone the repository
