@@ -1,9 +1,9 @@
 # NoShot Browser
 
 <!-- 🛡️ Professional Status Badges Strip -->
-![License](https://github.com/muradmuhammadeg-droid/noshot_browser?tab=MIT-1-ov-file)
-![Issues](https://github.com/muradmuhammadeg-droid/noshot_browser/issues)
-![Discord Online](https://discord.gg/FVjVPd5u2F)
+[![License](https://shields.io)](https://github.com/muradmuhammadeg-droid/noshot_browser?tab=MIT-1-ov-file)
+[![Issues](https://shields.io)](https://github.com/muradmuhammadeg-droid/noshot_browser/issues)
+[![Discord Online](https://shields.io)](https://discord.gg/FVjVPd5u2F)
 
 An ultra-minimalist, medium-RAM desktop browser framework that replicates the clean aesthetic of Google Chrome while implementing an ethical background ad-blocking core.
 
