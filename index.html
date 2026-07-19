@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>NoShot Browser</title>
+    <style>
+        /* Base Reset & Core Windows Layout */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f1f3f4; /* Chrome standard light gray */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 1. Fake Chrome Tab Bar Strip */
+        .tab-strip {
+            display: flex;
+            align-items: flex-end;
+            background-color: #dee1e6; /* Chrome tab header track */
+            padding-left: 8px;
+            padding-top: 8px;
+            height: 32px;
+        }
+        .chrome-tab {
+            background-color: #ffffff;
+            color: #3c4043;
+            padding: 6px 30px 6px 16px;
+            font-size: 12px;
+            border-radius: 8px 8px 0 0;
+            width: 160px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+            box-shadow: 0 -1px 2px rgba(0,0,0,0.05);
+        }
+        .chrome-tab-close {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 14px;
+            font-size: 10px;
+            color: #5f6368;
+            cursor: pointer;
+        }
+        .chrome-tab-close:hover {
+            background-color: #e8eaed;
+            color: #202124;
+        }
+
+        /* 2. Chrome Navigation Toolbar Container */
+        .nav-bar {
+            display: flex;
+            background-color: #ffffff;
+            padding: 8px;
+            gap: 12px;
+            align-items: center;
+            border-bottom: 1px solid #dadce0;
+            height: 28px;
+        }
+        
+        /* Circular Material Navigation Buttons */
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #5f6368;
+            font-size: 16px;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .nav-btn:hover {
+            background-color: #f1f3f4;
+            color: #202124;
+        }
+
+        /* Pill-Shaped Chrome Address Input Bar */
+        .address-bar-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            background-color: #f1f3f4;
+            border-radius: 20px; /* Gives it the circular capsule edge */
+            padding: 0 16px;
+            height: 28px;
+            border: 1px solid transparent;
+            transition: background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+        }
+        .address-bar-container:focus-within {
+            background-color: #ffffff;
+            border-color: #dadce0;
+            box-shadow: 0 1px 3px rgba(60,64,67,0.15);
+        }
+        input {
+            width: 100%;
+            border: none;
+            background: none;
+            color: #202124;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* 3. The Isolated Web Canvas Frame */
+        iframe {
+            flex-grow: 1;
+            background: #ffffff;
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Chrome Tab Strip Component -->
+    <div class="tab-strip">
+        <div class="chrome-tab" id="active-tab">
+            <span id="tab-title">Google</span>
+            <div class="chrome-tab-close">×</div>
+        </div>
+    </div>
+
+    <!-- Navigation & Capsule Bar Component -->
+    <div class="nav-bar">
+        <button class="nav-btn" id="back" title="Click to go back">⭠</button>
+        <button class="nav-btn" id="forward" title="Click to go forward">⭢</button>
+        <button class="nav-btn" id="reload" title="Reload page">⭮</button>
+        
+        <div class="address-bar-container">
+            <input type="text" id="url-bar" value="https://google.com" autocomplete="off">
+        </div>
+    </div>
+
+    <!-- Main View Window Layer -->
+    <iframe id="web-container" src="https://google.com"></iframe>
+
+    <script>
+        const urlBar = document.getElementById('url-bar');
+        const webContainer = document.getElementById('web-container');
+        const tabTitle = document.getElementById('tab-title');
+
+        // Handles Navigation Triggers
+        urlBar.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                let url = urlBar.value.trim();
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    url = 'https://' + url;
+                }
+                urlBar.value = url;
+                webContainer.src = url;
+                
+                // Strips domain to update tab name cleanly
+                try {
+                    const domain = new URL(url).hostname.replace('www.', '');
+                    tabTitle.textContent = domain;
+                } catch(err) {
+                    tabTitle.textContent = url;
+                }
+            }
+        });
+
+        // Chrome UI Functional Listeners
+        document.getElementById('reload').addEventListener('click', () => { webContainer.src = webContainer.src; });
+        document.getElementById('back').addEventListener('click', () => { try { webContainer.contentWindow.history.back(); } catch(e){} });
+        document.getElementById('forward').addEventListener('click', () => { try { webContainer.contentWindow.history.forward(); } catch(e){} });
+    </script>
+</body>
+</html>
