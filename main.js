@@ -4,43 +4,53 @@ const path = require('path');
 let mainWindow;
 
 function createWindow() {
-    // 1. Core Browser Window Configuration
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
         title: "NoShot Browser",
         icon: path.join(__dirname, 'noshot_browser.ico'),
         webPreferences: {
-            nodeIntegration: false,    // Safe architecture for web browsing
-            contextIsolation: true,    // Sandbox structure to avoid crashes
-            webviewTag: true           // Allows the HTML <webview> to work
+            nodeIntegration: false,    
+            contextIsolation: true,    
+            webviewTag: true,           
+            blinkFeatures: 'ForceDarkMode' // Enforces global dark mode rendering engine
         }
     });
 
-    // 2. Remove Default Windows Menu Strip
     Menu.setApplicationMenu(null); 
 
-    // 3. File Download Manager Logic
-    mainWindow.webContents.session.on('will-download', (event, item) => {
-        // Automatically save files into the system's local Downloads folder
-        const downloadPath = path.join(app.getPath('downloads'), item.getFilename());
-        item.setSavePath(downloadPath);
+    // 📥 CORE FIX: Listen to all active web contents sessions (including guest webviews)
+    app.on('web-contents-created', (createEvent, contents) => {
+        
+        // Target the individual guest webview's session layer directly
+        contents.session.on('will-download', (downloadEvent, item, webContents) => {
+            
+            // Automatically establish save paths to the user's local Downloads path
+            const downloadPath = path.join(app.getPath('downloads'), item.getFilename());
+            item.setSavePath(downloadPath);
 
-        item.once('done', (e, state) => {
-            if (state === 'completed') {
-                mainWindow.flashFrame(true); // Alert user on taskbar when done
-            }
+            console.log(`Intercepted WebView Download: ${item.getFilename()}`);
+
+            item.once('done', (event, state) => {
+                if (state === 'completed') {
+                    console.log('Download successfully completed!');
+                    if (!mainWindow.isDestroyed()) {
+                        mainWindow.flashFrame(true); // Flashes operating system taskbar highlight
+                    }
+                } else {
+                    console.error(`Download failed or canceled: ${state}`);
+                }
+            });
         });
     });
 
-    // 4. Permission Privileges Controller
+    // Hardware Permission Privileges Controller
     mainWindow.webContents.session.setPermissionRequestHandler((webContents, permission, callback) => {
-        // Safe permissions allowed natively by default
         const safePermissions = ['geolocation', 'notifications', 'fullscreen', 'media'];
         callback(safePermissions.includes(permission));
     });
 
-    // 5. Right-Click Context Menu Logic
+    // Right-Click Canvas Context Menu Structure
     mainWindow.webContents.on('context-menu', (event, params) => {
         const contextMenu = Menu.buildFromTemplate([
             { label: 'Cut', role: 'cut', enabled: params.editFlags.canCut },
@@ -55,11 +65,10 @@ function createWindow() {
         contextMenu.popup();
     });
 
-    // 6. Mount Frontend Layer
     mainWindow.loadFile('index.html');
 }
 
-// App Lifecycles
+// System Life Cycles
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
