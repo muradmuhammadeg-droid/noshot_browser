@@ -7,9 +7,27 @@ function setupDownloadManager(mainWindow) {
             const downloadPath = path.join(app.getPath('downloads'), item.getFilename());
             item.setSavePath(downloadPath);
 
+            const filename = item.getFilename();
+
+            item.on('updated', (event, state) => {
+                if (state === 'progressing' && !mainWindow.isDestroyed()) {
+                    const received = item.getReceivedBytes();
+                    const total = item.getTotalBytes();
+                    const percent = total > 0 ? Math.round((received / total) * 100) : 0;
+                    
+                    // 🌟 Stream live metrics over to renderer.js
+                    mainWindow.webContents.send('download-progress', { filename, percent, status: 'Downloading' });
+                }
+            });
+
             item.once('done', (event, state) => {
-                if (state === 'completed' && !mainWindow.isDestroyed()) {
-                    mainWindow.flashFrame(true);
+                if (!mainWindow.isDestroyed()) {
+                    if (state === 'completed') {
+                        mainWindow.flashFrame(true);
+                        mainWindow.webContents.send('download-progress', { filename, percent: 100, status: 'Completed' });
+                    } else {
+                        mainWindow.webContents.send('download-progress', { filename, percent: 0, status: 'Failed' });
+                    }
                 }
             });
         });
