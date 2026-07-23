@@ -126,25 +126,34 @@ urlBar.addEventListener('click', () => urlBar.select());
 // ==========================================
 // 📥 2. LIVE DOWNLOADS UI TRACKER ENGINE
 // ==========================================
-let activeDownloads = {};
-
 ipcRenderer.on('download-progress', (event, data) => {
     if (downloadsList.innerHTML.includes('No recent downloads')) {
         downloadsList.innerHTML = '';
     }
 
-    let itemEl = document.getElementById('dl-' + data.filename.replace(/[^a-zA-Z0-9]/g, ''));
+    const cleanId = 'dl-' + data.filename.replace(/[^a-zA-Z0-9]/g, '');
+    let itemEl = document.getElementById(cleanId);
+
     if (!itemEl) {
         itemEl = document.createElement('div');
         itemEl.className = 'download-item';
-        itemEl.id = 'dl-' + data.filename.replace(/[^a-zA-Z0-9]/g, '');
+        itemEl.id = cleanId;
         downloadsList.appendChild(itemEl);
     }
 
+    let stateColor = '#ffda6a'; // Yellow for in-progress
+    if (data.status === 'Completed') stateColor = '#81c995'; // Green for success
+    if (data.status === 'Failed') stateColor = '#f28b82';    // Red for failure
+
     itemEl.innerHTML = `
-        <strong>${data.filename}</strong><br>
-        Status: <span style="color:${data.status === 'Completed' ? '#81c995' : '#ffda6a'}">${data.status}</span><br>
-        Progress: ${data.percent}%
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px; font-weight: 500;">
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">${data.filename}</span>
+            <span style="color: ${stateColor}; font-weight: bold;">${data.percent}%</span>
+        </div>
+        <div style="width: 100%; background: #4a4a4a; height: 6px; border-radius: 3px; overflow: hidden;">
+            <div style="width: ${data.percent}%; background: ${stateColor}; height: 100%; transition: width 0.1s linear;"></div>
+        </div>
+        <div style="font-size: 11px; color: #9aa0a6; margin-top: 4px;">Status: ${data.status}</div>
     `;
 });
 
@@ -158,6 +167,7 @@ document.getElementById('clear-cache-btn').addEventListener('click', () => { dow
 // ⌨️ 3. NATIVE KEYBOARD SHORTCUTS CONTROLLER
 // ==========================================
 window.addEventListener('keydown', (e) => {
+    // Check Ctrl Combinations
     if (e.ctrlKey) {
         switch(e.key.toLowerCase()) {
             case 't': // Spawn a clean browser tab
@@ -173,6 +183,19 @@ window.addEventListener('keydown', (e) => {
                 const v = getActiveWebView();
                 if(v) v.reload();
                 break;
+        }
+    }
+
+    // 🌟 F12 Developer Tools Toggle Key Capture Rule
+    if (e.key === 'F12') {
+        e.preventDefault();
+        const activeWebView = getActiveWebView();
+        if (activeWebView) {
+            if (activeWebView.isDevToolsOpened()) {
+                activeWebView.closeDevTools();
+            } else {
+                activeWebView.openDevTools();
+            }
         }
     }
 });
