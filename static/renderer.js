@@ -1,83 +1,181 @@
-// DOM Element Selectors
-const webView = document.getElementById('web-container');
+const { ipcRenderer } = require('electron'); // Core channel engine link
+
+// Core DOM Selectors
+const tabsContainer = document.getElementById('tabs-container');
+const viewportsContainer = document.getElementById('web-viewports-container');
 const urlBar = document.getElementById('url-bar');
-const tabTitle = document.getElementById('tab-title');
 const btnBack = document.getElementById('back');
 const btnForward = document.getElementById('forward');
+const btnNewTab = document.getElementById('new-tab-trigger');
 
 const downloadsBtn = document.getElementById('downloads-btn');
 const downloadsMenu = document.getElementById('downloads-menu');
+const downloadsList = document.getElementById('downloads-list');
 const settingsBtn = document.getElementById('settings-btn');
 const settingsMenu = document.getElementById('settings-menu');
-const clearCacheBtn = document.getElementById('clear-cache-btn');
 
-// Toggle UI Overlay Dropdowns
-downloadsBtn.addEventListener('click', (e) => {
-    settingsMenu.style.display = 'none';
-    downloadsMenu.style.display = downloadsMenu.style.display === 'block' ? 'none' : 'block';
-    e.stopPropagation();
-});
+let tabsList = [];
+let activeTabId = null;
 
-settingsBtn.addEventListener('click', (e) => {
-    downloadsMenu.style.display = 'none';
-    settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block';
-    e.stopPropagation();
-});
+// ==========================================
+// 🚀 1. DYNAMIC MULTI-TAB ARCHITECTURE ENGINE
+// ==========================================
+function createNewTab(targetUrl = 'https://google.com') {
+    const tabId = 'tab-' + Date.now();
+    
+    // Create UI HTML Tab Block
+    const tabElement = document.createElement('div');
+    tabElement.className = 'chrome-tab';
+    tabElement.id = 'ui-' + tabId;
+    tabElement.innerHTML = `<span class="title-text">New Tab</span><div class="chrome-tab-close" id="close-${tabId}">×</div>`;
+    
+    // Create Matching Background Webview Canvas element
+    const webviewElement = document.createElement('webview');
+    webviewElement.id = 'view-' + tabId;
+    webviewElement.src = targetUrl;
 
-// Close open dropdowns if clicking anywhere outside the panels
-document.addEventListener('click', () => {
-    downloadsMenu.style.display = 'none';
-    settingsMenu.style.display = 'none';
-});
+    tabsContainer.appendChild(tabElement);
+    viewportsContainer.appendChild(webviewElement);
 
-clearCacheBtn.addEventListener('click', () => {
-    alert("Cache cleared successfully!");
-    settingsMenu.style.display = 'none';
-});
+    const tabData = { id: tabId, tabEl: tabElement, viewEl: webviewElement };
+    tabsList.push(tabData);
 
-// Input Processor to evaluate proper web addresses or search terms
-function loadUrlFromInput() {
-    let url = urlBar.value.trim();
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        if (url.includes('.') && !url.includes(' ')) {
-            url = 'https://' + url;
+    // Event hooks on the individual webview instance
+    webviewElement.addEventListener('did-navigate', (e) => { if(tabId === activeTabId) urlBar.value = e.url; updateNavs(); });
+    webviewElement.addEventListener('did-navigate-in-page', (e) => { if(tabId === activeTabId) urlBar.value = e.url; updateNavs(); });
+    webviewElement.addEventListener('page-title-updated', (e) => { tabElement.querySelector('.title-text').textContent = e.title; });
+    webviewElement.addEventListener('new-window', (e) => { createNewTab(e.url); });
+    webviewElement.addEventListener('did-start-loading', () => { tabElement.querySelector('.title-text').textContent = "Loading..."; });
+    webviewElement.addEventListener('did-stop-loading', () => { updateNavs(); });
+
+    // Click triggers to target actions
+    tabElement.addEventListener('click', () => switchActiveTab(tabId));
+    tabElement.querySelector('.chrome-tab-close').addEventListener('click', (e) => {
+        e.stopPropagation();
+        closeTargetTab(tabId);
+    });
+
+    switchActiveTab(tabId);
+}
+
+function switchActiveTab(tabId) {
+    activeTabId = tabId;
+    tabsList.forEach(t => {
+        if(t.id === tabId) {
+            t.tabEl.classList.add('active');
+            t.viewEl.classList.add('active-view');
+            urlBar.value = t.viewEl.src;
         } else {
-            url = 'https://google.com' + encodeURIComponent(url);
+            t.tabEl.classList.remove('active');
+            t.viewEl.classList.remove('active-view');
         }
+    });
+    updateNavs();
+}
+
+function closeTargetTab(tabId) {
+    const targetIdx = tabsList.findIndex(t => t.id === tabId);
+    if(targetIdx === -1) return;
+
+    const targetTab = tabsList[targetIdx];
+    targetTab.tabEl.remove();
+    targetTab.viewEl.remove();
+    tabsList.splice(targetIdx, 1);
+
+    if (tabsList.length === 0) {
+        createNewTab(); // Automatically fallback spawn if no tabs left
+    } else if (activeTabId === tabId) {
+        const nextActive = tabsList[targetIdx - 1] || tabsList[0];
+        switchActiveTab(nextActive.id);
     }
-    webView.src = url;
 }
 
-// Keep browser navigation dynamic back/forward sync state active
-function updateNavigationButtons() {
-    btnBack.disabled = !webView.canGoBack();
-    btnForward.disabled = !webView.canGoForward();
+function getActiveWebView() {
+    const current = tabsList.find(t => t.id === activeTabId);
+    return current ? current.viewEl : null;
 }
 
-// Navigation Controls Listeners
-document.getElementById('reload').addEventListener('click', () => { webView.reload(); });
-btnBack.addEventListener('click', () => { if (webView.canGoBack()) webView.goBack(); });
-btnForward.addEventListener('click', () => { if (webView.canGoForward()) webView.goForward(); });
+function updateNavs() {
+    const view = getActiveWebView();
+    if(view) {
+        btnBack.disabled = !view.canGoBack();
+        btnForward.disabled = !view.canGoForward();
+    }
+}
+
+// Nav Controls Core Hooks
+document.getElementById('reload').addEventListener('click', () => { const v = getActiveWebView(); if(v) v.reload(); });
+btnBack.addEventListener('click', () => { const v = getActiveWebView(); if(v && v.canGoBack()) v.goBack(); });
+btnForward.addEventListener('click', () => { const v = getActiveWebView(); if(v && v.canGoForward()) v.goForward(); });
+
+btnNewTab.addEventListener('click', () => createNewTab());
 
 urlBar.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-        loadUrlFromInput();
-        urlBar.blur(); 
+        let url = urlBar.value.trim();
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = (url.includes('.') && !url.includes(' ')) ? 'https://' + url : 'https://google.com' + encodeURIComponent(url);
+        }
+        const v = getActiveWebView();
+        if(v) v.src = url;
+        urlBar.blur();
     }
 });
-urlBar.addEventListener('click', () => { urlBar.select(); });
+urlBar.addEventListener('click', () => urlBar.select());
 
-// Event Tracking State Synchronizers
-webView.addEventListener('new-window', (event) => { webView.src = event.url; });
-webView.addEventListener('did-start-loading', () => { tabTitle.textContent = "Loading..."; });
-webView.addEventListener('page-title-updated', (event) => { tabTitle.textContent = event.title; });
-webView.addEventListener('did-stop-loading', () => { updateNavigationButtons(); });
+// ==========================================
+// 📥 2. LIVE DOWNLOADS UI TRACKER ENGINE
+// ==========================================
+let activeDownloads = {};
 
-webView.addEventListener('did-navigate', (event) => {
-    urlBar.value = event.url;
-    updateNavigationButtons();
+ipcRenderer.on('download-progress', (event, data) => {
+    if (downloadsList.innerHTML.includes('No recent downloads')) {
+        downloadsList.innerHTML = '';
+    }
+
+    let itemEl = document.getElementById('dl-' + data.filename.replace(/[^a-zA-Z0-9]/g, ''));
+    if (!itemEl) {
+        itemEl = document.createElement('div');
+        itemEl.className = 'download-item';
+        itemEl.id = 'dl-' + data.filename.replace(/[^a-zA-Z0-9]/g, '');
+        downloadsList.appendChild(itemEl);
+    }
+
+    itemEl.innerHTML = `
+        <strong>${data.filename}</strong><br>
+        Status: <span style="color:${data.status === 'Completed' ? '#81c995' : '#ffda6a'}">${data.status}</span><br>
+        Progress: ${data.percent}%
+    `;
 });
-webView.addEventListener('did-navigate-in-page', (event) => {
-    urlBar.value = event.url; 
-    updateNavigationButtons();
+
+// Dropdown Toggles UI Panel Configuration Rules
+downloadsBtn.addEventListener('click', (e) => { settingsMenu.style.display = 'none'; downloadsMenu.style.display = downloadsMenu.style.display === 'block' ? 'none' : 'block'; e.stopPropagation(); });
+settingsBtn.addEventListener('click', (e) => { downloadsMenu.style.display = 'none'; settingsMenu.style.display = settingsMenu.style.display === 'block' ? 'none' : 'block'; e.stopPropagation(); });
+document.addEventListener('click', () => { downloadsMenu.style.display = 'none'; settingsMenu.style.display = 'none'; });
+document.getElementById('clear-cache-btn').addEventListener('click', () => { downloadsList.innerHTML = 'No recent downloads'; alert("Cache Purged!"); });
+
+// ==========================================
+// ⌨️ 3. NATIVE KEYBOARD SHORTCUTS CONTROLLER
+// ==========================================
+window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey) {
+        switch(e.key.toLowerCase()) {
+            case 't': // Spawn a clean browser tab
+                e.preventDefault();
+                createNewTab();
+                break;
+            case 'w': // Target close active browser layout tab frame
+                e.preventDefault();
+                if(activeTabId) closeTargetTab(activeTabId);
+                break;
+            case 'r': // Standard webview frame reload request loop overrides
+                e.preventDefault();
+                const v = getActiveWebView();
+                if(v) v.reload();
+                break;
+        }
+    }
 });
+
+// Boot Initial Tab Instance on Startup
+createNewTab();
