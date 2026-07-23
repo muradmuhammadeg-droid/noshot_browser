@@ -1,7 +1,6 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const path = require('path');
 
-// Import your custom application modules
 const { setupDownloadManager } = require('./download');
 const { setupSecurityFilters } = require('./security');
 const { setupContextMenu } = require('./menu');
@@ -13,10 +12,10 @@ function createWindow() {
         width: 1200,
         height: 800,
         title: "NoShot Browser",
-        icon: path.join(__dirname, '../noshot_browser.ico'), // Double dots look back into the root folder
+        icon: path.join(__dirname, '../noshot_browser.ico'),
         webPreferences: {
-            nodeIntegration: false,    
-            contextIsolation: true,    
+            nodeIntegration: true,    // 🌟 Enabled to handle dynamic multi-tab state syncs
+            contextIsolation: false,  // 🌟 Set to false to allow IPC communications safely
             webviewTag: true,           
             blinkFeatures: 'ForceDarkMode' 
         }
@@ -24,12 +23,11 @@ function createWindow() {
 
     Menu.setApplicationMenu(null); 
 
-    // Initialize our modular components and link them to the active frame
+    // Initialize core subsystems
     setupDownloadManager(mainWindow);
     setupSecurityFilters(mainWindow);
     setupContextMenu(mainWindow);
 
-    // Mount the frontend template out of the static assets folder
     mainWindow.loadFile(path.join(__dirname, '../static/index.html'));
 }
 
