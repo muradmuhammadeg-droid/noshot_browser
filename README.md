@@ -36,6 +36,8 @@ npm install
 npm start
 ```
 
+## Our Discord
+Join our [![Discord_Online](https://img.shields.io/badge/Discord-server-purple)](https://discord.gg/P4M4mnnHrY) to find out announcements about new features.
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
