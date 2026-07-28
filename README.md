@@ -36,6 +36,16 @@ npm install
 npm start
 ```
 
+## How to Update NoShot Browser
+You can update NoShot Browser easily without errors.
+To update NoShot Browser, Run these commands:
+
+```bash
+cd noshot_browser
+git checkout main
+git pull origin main
+```
+
 ## Our Discord
 Join our [![Discord_Online](https://img.shields.io/badge/Discord_server-purple)](https://discord.gg/P4M4mnnHrY) to find out announcements about new features.
 ## License
