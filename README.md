@@ -41,9 +41,13 @@ You can update NoShot Browser easily without errors.
 To update NoShot Browser, Run these commands:
 
 ```bash
+# 1. Update first with Git.
 cd noshot_browser
 git checkout main
 git pull origin main
+# 2. Fire up the browser app again after updating.
+npm start
+(If you didn't install the electron modules yet, run npm install.)
 ```
 
 ## Our Discord
